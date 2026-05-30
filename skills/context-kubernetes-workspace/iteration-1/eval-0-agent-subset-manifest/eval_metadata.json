@@ -1,0 +1,12 @@
+{
+  "eval_id": 0,
+  "eval_name": "agent-subset-manifest",
+  "prompt": "We're rolling out internal AI agents (LangGraph) across our company and I'm nervous they'll see HR data they shouldn't, or worse, send emails to clients without anyone checking. How should I set up access control so an agent can only do a subset of what its human owner can do? Give me something concrete I can put in version control.",
+  "assertions": [
+    {"text": "Provides a concrete version-controllable manifest/config (YAML or equivalent declarative file)"},
+    {"text": "Explicitly enforces that agent permissions are a STRICT subset of the human owner's permissions"},
+    {"text": "Sending external/client email requires elevated human approval (not autonomous)"},
+    {"text": "HR data is isolated from the agent by default (default-deny / domain isolation)"},
+    {"text": "Uses a graduated/three-tier approval model (autonomous vs soft vs strong approval)"}
+  ]
+}

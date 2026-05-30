@@ -1,0 +1,9 @@
+{
+  "expectations": [
+    {"text": "Distinguishes the deleted-page-still-served problem from the contradiction/versioning problem", "passed": true, "evidence": "Explicitly separates 'phantom context (deletion-propagation)' from 'contradictory answers (versioning + ranking)'."},
+    {"text": "Provides a freshness policy with a maxAge/TTL and a stale action per source", "passed": true, "evidence": "ContextDomain freshness block with per-source maxAge and staleAction flag/re-sync/block overrides."},
+    {"text": "States the principle of never serving expired content silently (explicit staleness or fail-closed)", "passed": true, "evidence": "'never serve past-expired context, and only serve stale context with explicit staleness metadata'; high-stakes paths use block."},
+    {"text": "Describes a reconciliation / sweep / continuous-monitoring mechanism to purge or re-sync", "passed": true, "evidence": "syncMode: reconcile + trackDeletes; diff source IDs vs vector store and hard-delete orphans; sourceHealth checks."},
+    {"text": "Names discrete freshness states (e.g. fresh / stale / expired / conflicted)", "passed": false, "evidence": "Uses staleAction VALUES (flag/re-sync/block) and the words stale/expired, but does not enumerate the four named freshness STATES (fresh/stale/expired/conflicted)."}
+  ]
+}
