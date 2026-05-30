@@ -1,0 +1,9 @@
+{
+  "expectations": [
+    {"text": "Distinguishes the deleted-page-still-served problem from the contradiction/versioning problem", "passed": true, "evidence": "Separates 'lifecycle/deletion-propagation' from 'freshness/version-conflict' as two distinct problems."},
+    {"text": "Provides a freshness policy with a maxAge/TTL and a stale action per source", "passed": true, "evidence": "freshness-policy.yaml with per-content-type ttl_rules and on_expiry actions (exclude/deprioritize/flag_for_review)."},
+    {"text": "States the principle of never serving expired content silently (explicit staleness or fail-closed)", "passed": true, "evidence": "'Expired-but-not-yet-refreshed chunks should never silently ground an answer'; pre_filter valid_until > now()."},
+    {"text": "Describes a reconciliation / sweep / continuous-monitoring mechanism to purge or re-sync", "passed": true, "evidence": "Reconciliation sweep diffing live vs indexed IDs, event-driven deletes, nightly schedule, drift metrics/alerts."},
+    {"text": "Names discrete freshness states (e.g. fresh / stale / expired / conflicted)", "passed": false, "evidence": "Uses source_status active/deleted and valid_until, but does not name the fresh/stale/expired/conflicted state model."}
+  ]
+}

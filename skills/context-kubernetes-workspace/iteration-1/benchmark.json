@@ -1,0 +1,127 @@
+{
+  "metadata": {
+    "skill_name": "context-kubernetes",
+    "skill_path": "/Users/apple/AgentKube/skills/context-kubernetes",
+    "executor_model": "claude (session model)",
+    "analyzer_model": "claude (session model)",
+    "timestamp": "2026-05-30T15:50:50Z",
+    "evals_run": [0, 1, 2],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "eval_name": "agent-subset-manifest",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {"pass_rate": 1.0, "passed": 5, "failed": 0, "total": 5, "time_seconds": 191.7, "tokens": 46708, "errors": 0},
+      "expectations": [
+        {"text": "Version-controllable manifest", "passed": true, "evidence": "Two ContextDomain manifests (sales + hr)."},
+        {"text": "STRICT subset enforced", "passed": true, "evidence": "States 'at least one thing the human can do that the agent cannot'; excludes commit-to-pricing."},
+        {"text": "External email needs approval", "passed": true, "evidence": "send-external-email: strong-approval."},
+        {"text": "HR default-deny isolation", "passed": true, "evidence": "crossDomain hr: denied + separate locked hr domain."},
+        {"text": "Three-tier approval model", "passed": true, "evidence": "T1/T2/T3/Excluded table + tier monotonicity."}
+      ],
+      "notes": ["Produced the full validation checklist and anti-patterns to reject."]
+    },
+    {
+      "eval_id": 0,
+      "eval_name": "agent-subset-manifest",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {"pass_rate": 0.6, "passed": 3, "failed": 2, "total": 5, "time_seconds": 101.9, "tokens": 40477, "errors": 0},
+      "expectations": [
+        {"text": "Version-controllable manifest", "passed": true, "evidence": "AgentGrant YAML + OPA/Rego policy + CI."},
+        {"text": "STRICT subset enforced", "passed": false, "evidence": "subsetOf:owner permits equality (⊆ not ⊂); never withholds a capability."},
+        {"text": "External email needs approval", "passed": true, "evidence": "External send gated by approvals.required, timeoutAction: deny."},
+        {"text": "HR default-deny isolation", "passed": true, "evidence": "Default-deny read with row/column filters; denyColumns ssn/salary/medical."},
+        {"text": "Three-tier approval model", "passed": false, "evidence": "Binary requireApproval flag; no soft-vs-strong gradation."}
+      ],
+      "notes": ["Strong engineering answer (Rego, scoped tokens, CI tests) but missed strictness + tier gradation."]
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "freshness-policy",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {"pass_rate": 0.8, "passed": 4, "failed": 1, "total": 5, "time_seconds": 188.5, "tokens": 45616, "errors": 0},
+      "expectations": [
+        {"text": "Distinguishes deletion vs versioning", "passed": true, "evidence": "Phantom-context vs versioning+ranking."},
+        {"text": "Freshness policy maxAge + staleAction", "passed": true, "evidence": "Per-source maxAge + flag/re-sync/block."},
+        {"text": "No silent stale", "passed": true, "evidence": "'never serve past-expired; serve stale only with explicit metadata'."},
+        {"text": "Reconciliation/sweep", "passed": true, "evidence": "syncMode: reconcile + trackDeletes; orphan diff."},
+        {"text": "Names freshness states (fresh/stale/expired/conflicted)", "passed": false, "evidence": "Surfaces staleAction values, not the 4 named states."}
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "freshness-policy",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {"pass_rate": 0.8, "passed": 4, "failed": 1, "total": 5, "time_seconds": 105.3, "tokens": 39678, "errors": 0},
+      "expectations": [
+        {"text": "Distinguishes deletion vs versioning", "passed": true, "evidence": "Lifecycle/deletion vs version-conflict."},
+        {"text": "Freshness policy maxAge + staleAction", "passed": true, "evidence": "freshness-policy.yaml ttl_rules + on_expiry."},
+        {"text": "No silent stale", "passed": true, "evidence": "'Expired... should never silently ground an answer'."},
+        {"text": "Reconciliation/sweep", "passed": true, "evidence": "Nightly reconciliation sweep, event-driven deletes, drift metrics."},
+        {"text": "Names freshness states (fresh/stale/expired/conflicted)", "passed": false, "evidence": "Uses source_status active/deleted, not the 4 named states."}
+      ],
+      "notes": ["Arguably more operationally detailed than the with-skill answer (generation prompt, drift metrics)."]
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "approval-isolation",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {"pass_rate": 1.0, "passed": 5, "failed": 0, "total": 5, "time_seconds": 161.1, "tokens": 43936, "errors": 0},
+      "expectations": [
+        {"text": "In-band not safe", "passed": true, "evidence": "'agent asking itself for permission on a channel it controls'."},
+        {"text": "Agent can forge in-band yes", "passed": true, "evidence": "Prompt-injection/hallucination can fabricate approval."},
+        {"text": "Out-of-band + separate factor", "passed": true, "evidence": "Push/2FA/biometric on a channel the agent can't read/write."},
+        {"text": "Binds to specific transaction", "passed": true, "evidence": "Confirm this amount to this recipient."},
+        {"text": "Classifies as T3 / excludes above cap", "passed": true, "evidence": "submit-wire-transfer: strong-approval; > cap: excluded."}
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "approval-isolation",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {"pass_rate": 1.0, "passed": 5, "failed": 0, "total": 5, "time_seconds": 87.3, "tokens": 38122, "errors": 0},
+      "expectations": [
+        {"text": "In-band not safe", "passed": true, "evidence": "'No, not as described' for irreversible wires."},
+        {"text": "Agent can forge in-band yes", "passed": true, "evidence": "Prompt-injection can forge/coerce; same trust boundary."},
+        {"text": "Out-of-band + separate factor", "passed": true, "evidence": "Out-of-band approvals UI + step-up MFA/passkey/biometric."},
+        {"text": "Binds to specific transaction", "passed": true, "evidence": "Immutable single-use signed approval record; execution must match."},
+        {"text": "Classifies as T3 / excludes above cap", "passed": true, "evidence": "Hard caps that refuse; dual control above threshold."}
+      ],
+      "notes": ["Matched the skill on substance; added a compliance/AML note the skill version omitted."]
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {"mean": 0.933, "stddev": 0.094, "min": 0.8, "max": 1.0},
+      "time_seconds": {"mean": 180.4, "stddev": 13.7, "min": 161.1, "max": 191.7},
+      "tokens": {"mean": 45420, "stddev": 1141, "min": 43936, "max": 46708}
+    },
+    "without_skill": {
+      "pass_rate": {"mean": 0.8, "stddev": 0.163, "min": 0.6, "max": 1.0},
+      "time_seconds": {"mean": 98.2, "stddev": 7.8, "min": 87.3, "max": 105.3},
+      "tokens": {"mean": 39426, "stddev": 976, "min": 38122, "max": 40477}
+    },
+    "delta": {
+      "pass_rate": "+0.13",
+      "time_seconds": "+82.2",
+      "tokens": "+5994"
+    }
+  },
+  "notes": [
+    "The aggregate +13pp delta is driven ENTIRELY by eval-0 (agent-subset-manifest, +0.40). On eval-1 and eval-2 the configurations tie.",
+    "eval-0 discriminators: the skill enforces a STRICT subset (⊂) and a graduated three-tier model; the baseline settled for subset≤owner (⊆, permits equality) and a binary requireApproval flag. This is the skill's clearest unique value.",
+    "Non-discriminating assertion: 'names freshness states (fresh/stale/expired/conflicted)' FAILED in BOTH configs on eval-1 — the skill describes the 4-state model in SKILL.md but the answer surfaced staleAction values instead. Candidate improvement: make the freshness state machine explicit in the manifest output.",
+    "On freshness and approval-isolation the baseline matched the skill on substance — this model already reasons well about these. The skill's value there is consistency + vocabulary (always produces a manifest + validation checklist), not unlocked capability.",
+    "Cost: the skill adds ~82s and ~6k tokens per run (reading SKILL.md + references). Worth it for the eval-0 governance gain; consider trimming references for latency-sensitive uses."
+  ]
+}

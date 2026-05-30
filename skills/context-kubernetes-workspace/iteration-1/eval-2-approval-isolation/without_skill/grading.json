@@ -1,0 +1,9 @@
+{
+  "expectations": [
+    {"text": "Concludes that in-band chat approval is NOT safe for a wire transfer", "passed": true, "evidence": "'No, not as described' — a chat yes is a gesture, not a safe control for irreversible wires."},
+    {"text": "Explains the agent can read/forge/manipulate the in-band approval (channel not isolated from the agent)", "passed": true, "evidence": "Prompt-injection can forge/coerce the approval; approval lives in the same trust boundary as the proposer."},
+    {"text": "Recommends out-of-band approval requiring a separate authentication factor", "passed": true, "evidence": "Out-of-band approvals UI / push / signed link, with step-up re-authentication (MFA/passkey/biometric) at approval time."},
+    {"text": "Binds the approval to the specific transaction (amount and/or recipient)", "passed": true, "evidence": "Immutable approval record (payee, IBAN, amount, currency, date); single-use, time-bound, tamper-evident; execution must match exactly."},
+    {"text": "Classifies wire transfer at the highest oversight tier (strong approval / T3) or excludes it above a cap", "passed": true, "evidence": "Hard caps that simply refuse regardless of approval; dual control / four-eyes above a threshold."}
+  ]
+}
