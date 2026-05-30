@@ -1,0 +1,40 @@
+{
+  "skill_name": "context-kubernetes",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're rolling out internal AI agents (LangGraph) across our company and I'm nervous they'll see HR data they shouldn't, or worse, send emails to clients without anyone checking. How should I set up access control so an agent can only do a subset of what its human owner can do? Give me something concrete I can put in version control.",
+      "expected_output": "A ContextDomain YAML manifest with human RBAC under access, agentPermissions as a strict subset with three-tier approvals (external email -> strong-approval), crossDomain default-deny including hr: denied, and an explanation of the agent-authority-subset invariant.",
+      "files": [],
+      "rubric": [
+        { "id": "manifest-parses", "kind": "deterministic", "check": "parses_as_context_domain", "weight": 1 },
+        { "id": "strict-subset", "kind": "deterministic", "check": "agent_perms_strict_subset", "weight": 2 },
+        { "id": "crossdomain-deny", "kind": "deterministic", "check": "crossdomain_default_deny", "weight": 1 },
+        { "id": "tier-monotonicity", "kind": "deterministic", "check": "tier_monotonicity", "weight": 1 },
+        { "id": "explains-subset-invariant", "kind": "judged", "weight": 2, "criterion": "Explains the agent-authority-subset invariant: an agent acting for a user can never do something the user cannot, and needs at least as much oversight for any shared action." }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Our RAG chatbot keeps answering with info from a wiki page we deleted three weeks ago, and sometimes gives contradictory answers. Is there a principled way to handle freshness and stale knowledge for agent context?",
+      "expected_output": "Explanation of freshness states (fresh/stale/expired/conflicted), a freshness policy block with maxAge + staleAction per source, fail-closed/no-silent-stale principle, and the reconciliation-loop idea.",
+      "files": [],
+      "rubric": [
+        { "id": "freshness-states", "kind": "judged", "weight": 2, "criterion": "Describes distinct freshness states (at minimum fresh/stale/expired, ideally conflicted) and what each means for serving context." },
+        { "id": "no-silent-stale", "kind": "judged", "weight": 2, "criterion": "States a fail-closed / no-silent-stale principle: stale or expired content must not be served silently as if fresh." },
+        { "id": "freshness-policy-block", "kind": "deterministic", "check": "freshness_has_teeth", "weight": 1 }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I want my agent to be able to approve wire transfers but obviously with a human in the loop. We were going to have it just ask the user in the chat and proceed if they say yes. Is that safe?",
+      "expected_output": "Pushback: in-band chat approval is not isolated; explanation of Design Invariant 3.8 (external channel, not agent-readable/writable, separate auth factor); classify wire transfer as T3 strong-approval; concrete approval-channel design.",
+      "files": [],
+      "rubric": [
+        { "id": "pushes-back-inband", "kind": "judged", "weight": 2, "criterion": "Pushes back: in-band chat approval is NOT safe because the agent can read/forge the reply — it is not isolated from the agent's execution environment." },
+        { "id": "explains-3.8-isolation", "kind": "judged", "weight": 2, "criterion": "Explains that a strong-approval (T3) action must be approved on a channel external to the agent, not agent-readable/writable, using a separate authentication factor." },
+        { "id": "classifies-t3", "kind": "judged", "weight": 1, "criterion": "Classifies the wire transfer as a Tier-3 strong-approval (or higher) action requiring out-of-band approval." }
+      ]
+    }
+  ]
+}

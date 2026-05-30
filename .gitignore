@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+.venv/
+venv/
+.env
+
+# Local Claude Code settings (never commit)
+.claude/settings.local.json
+
+# OS
+.DS_Store
